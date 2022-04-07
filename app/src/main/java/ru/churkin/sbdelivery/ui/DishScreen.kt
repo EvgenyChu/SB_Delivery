@@ -34,7 +34,7 @@ fun DishScreen() {
                 .fillMaxSize()
                 .background(color = MaterialTheme.colors.background)
         ) {
-            val (image, box, icon) = createRefs()
+            val (image, box, icon, title, text) = createRefs()
 
             Image(
                 painter = painterResource(id = R.drawable.pizza),
@@ -71,6 +71,30 @@ fun DishScreen() {
                         end.linkTo(image.end, margin = 16.dp)
                         top.linkTo(image.top, margin = 16.dp)
                     }
+            )
+            Text(
+                text = " Пицца Маргарита ",
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .constrainAs(title) {
+                        top.linkTo(image.bottom, margin = 16.dp)
+                    },
+                style = MaterialTheme.typography.button,
+            )
+            Text(
+                text = "Lorem ipsum dolor sit amet, " +
+                        "consectetur adipiscing elit, " +
+                        "sed do eiusmod tempor incididunt " +
+                        "ut labore et dolore magna aliqua. " +
+                        "Ut enim ad minim veniam, quis nostrud " +
+                        "exercitation ullamco laboris nisi ut aliquip " +
+                        "ex ea commodo consequat. ",
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .constrainAs(text) {
+                        top.linkTo(title.bottom, margin = 8.dp)
+                    },
+                style = MaterialTheme.typography.caption,
             )
         }
     }

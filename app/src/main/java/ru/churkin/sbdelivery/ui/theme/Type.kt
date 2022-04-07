@@ -74,5 +74,10 @@ val robotoLight = FontFamily(Font(R.font.roboto_light))
             fontFamily = robotoMedium,
             fontSize = 14.sp,
             color = onSurface
+        ),
+        button = TextStyle(
+            fontFamily = robotoMedium,
+            fontSize = 24.sp,
+            color = onPrimary
         )
     )
