@@ -23,7 +23,8 @@ fun AppTheme(
             onSecondary = onSecondary,
             onBackground = onBackground,
             onSurface = onSurface,
-            error = error
+            error = error,
+            onError = onError
         )
     } else{
         lightColors(
@@ -36,7 +37,8 @@ fun AppTheme(
             onSecondary = onSecondary,
             onBackground = onBackground,
             onSurface = onSurface,
-            error = error
+            error = error,
+            onError = onError
 
         )
     }

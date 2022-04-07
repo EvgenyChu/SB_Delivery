@@ -74,7 +74,7 @@ fun BlockTextField(
     val colors = TextFieldDefaults.textFieldColors(
         textColor = MaterialTheme.colors.onSurface,
         backgroundColor = MaterialTheme.colors.surface,
-        focusedIndicatorColor = MaterialTheme.colors.onSurface,
+        focusedIndicatorColor = MaterialTheme.colors.secondary,
         cursorColor = MaterialTheme.colors.onSurface
     )
 

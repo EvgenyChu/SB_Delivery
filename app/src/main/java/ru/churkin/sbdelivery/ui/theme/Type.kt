@@ -69,5 +69,10 @@ val robotoLight = FontFamily(Font(R.font.roboto_light))
             fontFamily = robotoLight,
             fontSize = 13.sp,
             color = onBackground
+        ),
+        overline = TextStyle(
+            fontFamily = robotoMedium,
+            fontSize = 14.sp,
+            color = onSurface
         )
     )
