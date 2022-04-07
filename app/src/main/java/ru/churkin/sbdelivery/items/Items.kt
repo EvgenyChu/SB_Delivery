@@ -1,6 +1,7 @@
 package ru.churkin.sbdelivery.items
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,18 +9,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import ru.churkin.sbdelivery.R
 
 @Composable
 fun EntryToolBar(
     text: String = "",
-    actions: List<IconButton> = emptyList(),
+    actions: List<ToolBarAction> = emptyList(),
     leftIcon: Int = R.drawable.ic_baseline_arrow_back_24,
     onClick: () -> Unit
 ) {
@@ -49,7 +54,7 @@ fun EntryToolBar(
     }
 }
 
-data class IconButton(
+data class ToolBarAction(
     val icon: Int,
     val action: () -> Unit,
     val tint: Color
@@ -58,10 +63,11 @@ data class IconButton(
 @Composable
 fun BlockTextField(
     title: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.subtitle1,
     spacerHeight: Int = 16,
-    textValue: String = "",
-    onValueChange: () -> Unit,
     inputType: KeyboardType = KeyboardType.Text,
 
     ) {
@@ -72,23 +78,41 @@ fun BlockTextField(
         cursorColor = MaterialTheme.colors.onSurface
     )
 
-    Text(
-        text = title,
-        style = titleStyle
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-    TextField(
-        value = textValue,
-        onValueChange = { onValueChange() },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        textStyle = MaterialTheme.typography.body1,
-        keyboardOptions = KeyboardOptions(keyboardType = inputType),
-        colors = colors
-    )
-    Spacer(modifier = Modifier.height(spacerHeight.dp))
+    var isShowPassword by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = titleStyle
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            trailingIcon = {
+                if (inputType == KeyboardType.Password) {
+                    IconButton(onClick = {
+                        isShowPassword = !isShowPassword
+                    }) {
+                        Icon(
+                            painter = painterResource(id = if (!isShowPassword) R.drawable.ic_baseline_visibility_off_24 else R.drawable.ic_baseline_visibility_24),
+                            contentDescription = "Show"
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(8.dp),
+            textStyle = MaterialTheme.typography.body1,
+            keyboardOptions = KeyboardOptions(keyboardType = inputType),
+            visualTransformation = if (inputType == KeyboardType.Password && !isShowPassword) PasswordVisualTransformation()
+            else VisualTransformation.None,
+            colors = colors
+        )
+        Spacer(modifier = Modifier.height(spacerHeight.dp))
+    }
 }
 
 @Composable
@@ -119,9 +143,9 @@ fun ButtonItem(
 fun TextButtonItem(
     onClick: () -> Unit,
     text: String = ""
-){
+) {
     TextButton(
-        onClick = {onClick() },
+        onClick = { onClick() },
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),

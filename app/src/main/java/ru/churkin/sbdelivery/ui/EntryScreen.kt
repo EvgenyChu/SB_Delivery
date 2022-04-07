@@ -8,6 +8,9 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -23,7 +26,8 @@ import ru.churkin.sbdelivery.items.TextButtonItem
 
 @Composable
 fun EntryScreen() {
-
+    var login: String by remember { mutableStateOf("Sidorov") }
+    var password: String by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             EntryToolBar(
@@ -51,17 +55,17 @@ fun EntryScreen() {
             ) {
                 BlockTextField(
                     title = "E-mail",
-                    textValue = "sidorov.ivan@mail.ru",
-                    onValueChange = {},
+                    value = login,
+                    onValueChange = {login = it},
                     inputType = KeyboardType.Email
                 )
 
                 BlockTextField(
                     title = "Пароль",
-                    textValue = "•••••••",
-                    onValueChange = {},
-                    inputType = KeyboardType.Text,
-                    spacerHeight = 56
+                    value = password,
+                    onValueChange = {password = it},
+                    spacerHeight = 56,
+                    inputType = KeyboardType.Password
                 )
 
                 ButtonItem(
