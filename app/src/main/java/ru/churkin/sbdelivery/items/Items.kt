@@ -1,10 +1,7 @@
 package ru.churkin.sbdelivery.items
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -15,10 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ru.churkin.sbdelivery.R
 
 @Composable
@@ -118,6 +118,7 @@ fun BlockTextField(
 @Composable
 fun ButtonItem(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     colors: ButtonColors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary),
     text: String = "",
     textStyle: TextStyle = MaterialTheme.typography.h1,
@@ -125,9 +126,7 @@ fun ButtonItem(
 ) {
     Button(
         onClick = { onClick() },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors = colors
     ) {
@@ -156,6 +155,56 @@ fun TextButtonItem(
             text = text,
             style = MaterialTheme.typography.h1
         )
+    }
+}
+
+@Composable
+fun CardReview(
+    modifier: Modifier = Modifier,
+    color: Color = Color(0xFF33313C),
+    user: String = "",
+    text: String = "",
+    counter: Int = 5
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = color
+    ) {
+Column(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(8.dp)
+        ) {
+    Row(
+        horizontalArrangement = Arrangement.Start
+    ){
+        Text(
+            text = user,
+            style = MaterialTheme.typography.h5
+        )
+        Spacer(Modifier.weight(1f, true))
+        var n = 1
+        while ( n<=counter) {
+            Icon(
+                modifier = Modifier
+                    .height(16.dp),
+                painter = painterResource(id = R.drawable.ic_baseline_star_24),
+                tint = MaterialTheme.colors.secondary,
+                contentDescription = "Rating"
+            )
+            n++
+        }
+    }
+    Text(
+        text = text,
+        style = TextStyle(
+            color = MaterialTheme.colors.onPrimary,
+            fontFamily = FontFamily(Font(R.font.roboto_light)),
+            fontSize = 12.sp
+        )
+    )
+}
     }
 }
 
