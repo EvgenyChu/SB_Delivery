@@ -1,6 +1,6 @@
 package ru.churkin.sbdelivery.items
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -17,9 +19,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import ru.churkin.sbdelivery.R
+import ru.churkin.sbdelivery.ui.theme.AppTheme
 
 @Composable
 fun EntryToolBar(
@@ -171,40 +176,141 @@ fun CardReview(
         shape = RoundedCornerShape(8.dp),
         backgroundColor = color
     ) {
-Column(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
         ) {
-    Row(
-        horizontalArrangement = Arrangement.Start
-    ){
-        Text(
-            text = user,
-            style = MaterialTheme.typography.h5
-        )
-        Spacer(Modifier.weight(1f, true))
-        var n = 1
-        while ( n<=counter) {
-            Icon(
-                modifier = Modifier
-                    .height(16.dp),
-                painter = painterResource(id = R.drawable.ic_baseline_star_24),
-                tint = MaterialTheme.colors.secondary,
-                contentDescription = "Rating"
+            Row(
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = user,
+                    style = MaterialTheme.typography.h5
+                )
+                Spacer(Modifier.weight(1f, true))
+                var n = 1
+                while (n <= counter) {
+                    Icon(
+                        modifier = Modifier
+                            .height(16.dp),
+                        painter = painterResource(id = R.drawable.ic_baseline_star_24),
+                        tint = MaterialTheme.colors.secondary,
+                        contentDescription = "Rating"
+                    )
+                    n++
+                }
+            }
+            Text(
+                text = text,
+                style = TextStyle(
+                    color = MaterialTheme.colors.onPrimary,
+                    fontFamily = FontFamily(Font(R.font.roboto_light)),
+                    fontSize = 12.sp
+                )
             )
-            n++
         }
     }
-    Text(
-        text = text,
-        style = TextStyle(
-            color = MaterialTheme.colors.onPrimary,
-            fontFamily = FontFamily(Font(R.font.roboto_light)),
-            fontSize = 12.sp
-        )
-    )
 }
+
+@Composable
+fun CardProduct(
+onClick: () -> Unit,
+productImage: Int = R.drawable.kings_set,
+productPrice: String = "",
+productTitle: String = ""
+) {
+    var isFavorite: Boolean by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier
+            .height(220.dp)
+            .width(158.dp),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = MaterialTheme.colors.background
+    ) {
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+
+            val (image, icon, button, price, title) = createRefs()
+
+            Image(
+                painter = painterResource(id = productImage),
+                contentScale = ContentScale.FillWidth,
+                contentDescription = "background",
+                modifier = Modifier.constrainAs(image) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+            )
+            Icon(
+                painter = painterResource(
+                    id = if (!isFavorite) R.drawable.ic_baseline_favorite_border_24
+                    else R.drawable.ic_baseline_favorite_24
+                ),
+                tint = MaterialTheme.colors.onPrimary,
+                contentDescription = "Like",
+                modifier = Modifier
+                    .alpha(0.7f)
+                    .clickable { isFavorite = !isFavorite }
+                    .constrainAs(icon) {
+                        end.linkTo(parent.end, margin = 8.dp)
+                        top.linkTo(image.top, margin = 8.dp)
+                    }
+            )
+            FloatingActionButton(
+                onClick = {
+                    onClick()
+                },
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(40.dp)
+                    .constrainAs(button) {
+                        end.linkTo(parent.end, margin = 8.dp)
+                        bottom.linkTo(image.bottom)
+                        centerAround(image.bottom)
+                                       },
+                backgroundColor = MaterialTheme.colors.secondary,
+                contentColor = MaterialTheme.colors.onSecondary
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                    contentDescription = "Добавить"
+                )
+            }
+            Text(
+                text = productPrice,
+                modifier = Modifier
+                    .constrainAs(price) {
+                    start.linkTo(parent.start, margin = 8.dp)
+                    top.linkTo(image.bottom, margin = 8.dp)
+                },
+                style = MaterialTheme.typography.h6
+            )
+            Text(
+                text = productTitle,
+                modifier = Modifier
+                    .constrainAs(title) {
+                        start.linkTo(parent.start, margin = 8.dp)
+                        top.linkTo(price.bottom, margin = 4.dp)
+                    },
+                style = MaterialTheme.typography.h5
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+fun PreviewProductCard() {
+    AppTheme {
+        CardProduct(
+            onClick = {},
+            productPrice = "680 P",
+            productTitle = "Пеперони"
+        )
     }
 }
 
