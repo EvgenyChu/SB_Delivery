@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -23,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import ru.churkin.sbdelivery.R
 import ru.churkin.sbdelivery.ui.theme.AppTheme
 
@@ -215,10 +218,10 @@ fun CardReview(
 
 @Composable
 fun CardProduct(
-onClick: () -> Unit,
-productImage: Int = R.drawable.kings_set,
-productPrice: String = "",
-productTitle: String = ""
+    onClick: () -> Unit,
+    productImage: AsyncImagePainter,
+    productPrice: String = "",
+    productTitle: String = ""
 ) {
     var isFavorite: Boolean by remember { mutableStateOf(false) }
     Card(
@@ -226,7 +229,7 @@ productTitle: String = ""
             .height(220.dp)
             .width(158.dp),
         shape = RoundedCornerShape(8.dp),
-        backgroundColor = MaterialTheme.colors.background
+        backgroundColor = MaterialTheme.colors.primary
     ) {
         ConstraintLayout(
             modifier = Modifier
@@ -236,7 +239,7 @@ productTitle: String = ""
             val (image, icon, button, price, title) = createRefs()
 
             Image(
-                painter = painterResource(id = productImage),
+                painter = if (productImage.state is AsyncImagePainter.State.Error) painterResource(id = R.drawable.emptyimage) else productImage,
                 contentScale = ContentScale.FillWidth,
                 contentDescription = "background",
                 modifier = Modifier.constrainAs(image) {
@@ -271,7 +274,7 @@ productTitle: String = ""
                         end.linkTo(parent.end, margin = 8.dp)
                         bottom.linkTo(image.bottom)
                         centerAround(image.bottom)
-                                       },
+                    },
                 backgroundColor = MaterialTheme.colors.secondary,
                 contentColor = MaterialTheme.colors.onSecondary
             ) {
@@ -284,9 +287,9 @@ productTitle: String = ""
                 text = productPrice,
                 modifier = Modifier
                     .constrainAs(price) {
-                    start.linkTo(parent.start, margin = 8.dp)
-                    top.linkTo(image.bottom, margin = 8.dp)
-                },
+                        start.linkTo(parent.start, margin = 8.dp)
+                        top.linkTo(image.bottom, margin = 8.dp)
+                    },
                 style = MaterialTheme.typography.h6
             )
             Text(
@@ -302,15 +305,16 @@ productTitle: String = ""
     }
 }
 
-@Composable
+/*@Composable
 @Preview
 fun PreviewProductCard() {
     AppTheme {
         CardProduct(
             onClick = {},
             productPrice = "680 P",
-            productTitle = "Пеперони"
+            productTitle = "Пеперони",
+            productImage = rememberAsyncImagePainter("https://www.delivery-club.ru/media/cms/relation_product/32350/312372888_m650.jpg")
         )
     }
-}
+}*/
 
