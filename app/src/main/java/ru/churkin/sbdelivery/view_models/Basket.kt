@@ -4,15 +4,14 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import ru.churkin.sbdelivery.Product
-import java.util.*
 
-class ProductViewModel : ViewModel() {
-    private val _state: MutableStateFlow<ProductState> = MutableStateFlow(ProductState())
+class BasketViewModel : ViewModel() {
+    private val _state: MutableStateFlow<BasketState> = MutableStateFlow(BasketState())
 
-    val state: StateFlow<ProductState>
+    val state: StateFlow<BasketState>
         get() = _state
 
-    private val currentState: ProductState
+    private val currentState: BasketState
         get() = state.value
 
     private val products: List<Product> = listOf(
@@ -170,11 +169,19 @@ class ProductViewModel : ViewModel() {
 
     init {
         _state.value = currentState.copy(products = products)
+        var totalPrice = 0
+            products.forEach { totalPrice += it.price }
+        _state.value = currentState.copy(totalPrice = totalPrice)
     }
 
+    fun updatePromoCode(promoCode: String) {
+        _state.value = currentState.copy(promoCode = promoCode)
+    }
 
 }
 
-data class ProductState(
-    val products: List<Product> = listOf()
+data class BasketState(
+    val products: List<Product> = listOf(),
+    val promoCode: String = "",
+    val totalPrice: Int = 0
 )

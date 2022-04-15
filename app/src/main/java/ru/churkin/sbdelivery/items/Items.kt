@@ -8,11 +8,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -24,8 +27,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import coil.Coil
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
+import ru.churkin.sbdelivery.Product
 import ru.churkin.sbdelivery.R
 import ru.churkin.sbdelivery.ui.theme.AppTheme
 
@@ -218,16 +225,13 @@ fun CardReview(
 
 @Composable
 fun CardProduct(
-    onClick: () -> Unit,
-    productImage: AsyncImagePainter,
-    productPrice: String = "",
-    productTitle: String = ""
+    product: Product,
+    onClick: (String) -> Unit
 ) {
     var isFavorite: Boolean by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
-            .height(220.dp)
-            .width(158.dp),
+            .defaultMinSize(minHeight = 220.dp, minWidth = 160.dp ),
         shape = RoundedCornerShape(8.dp),
         backgroundColor = MaterialTheme.colors.primary
     ) {
@@ -238,15 +242,25 @@ fun CardProduct(
 
             val (image, icon, button, price, title) = createRefs()
 
+            val painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(product.image)
+                    .placeholder(R.drawable.emptyimage)
+                    .error(R.drawable.emptyimage)
+                    .build()
+            )
+
             Image(
-                painter = if (productImage.state is AsyncImagePainter.State.Error) painterResource(id = R.drawable.emptyimage) else productImage,
-                contentScale = ContentScale.FillWidth,
+                painter = painter,
+                contentScale = ContentScale.Crop,
                 contentDescription = "background",
-                modifier = Modifier.constrainAs(image) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+                modifier = Modifier
+                    .constrainAs(image) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .aspectRatio(1f)
             )
             Icon(
                 painter = painterResource(
@@ -265,7 +279,7 @@ fun CardProduct(
             )
             FloatingActionButton(
                 onClick = {
-                    onClick()
+                    onClick(product.id)
                 },
                 modifier = Modifier
                     .height(40.dp)
@@ -284,7 +298,7 @@ fun CardProduct(
                 )
             }
             Text(
-                text = productPrice,
+                text = "${ product.price } ₽",
                 modifier = Modifier
                     .constrainAs(price) {
                         start.linkTo(parent.start, margin = 8.dp)
@@ -293,7 +307,7 @@ fun CardProduct(
                 style = MaterialTheme.typography.h6
             )
             Text(
-                text = productTitle,
+                text = product.name,
                 modifier = Modifier
                     .constrainAs(title) {
                         start.linkTo(parent.start, margin = 8.dp)
@@ -303,6 +317,129 @@ fun CardProduct(
             )
         }
     }
+}
+
+@Composable
+fun BasketRow(
+    product: Product
+){
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(product.image)
+            .placeholder(R.drawable.emptyimage)
+            .error(R.drawable.emptyimage)
+            .build()
+    )
+    var counter: Int by remember { mutableStateOf(0) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .background(color = MaterialTheme.colors.background)
+            .defaultMinSize(minHeight = 80.dp)
+    ){
+        ConstraintLayout() {
+            val (image, title, price, box) = createRefs()
+
+            Image(
+                painter = painter,
+                contentScale = ContentScale.Crop,
+                contentDescription = "background",
+                modifier = Modifier
+                    .constrainAs(image) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .aspectRatio(1f)
+            )
+
+            Text(
+                text = product.name,
+                modifier = Modifier
+                    .constrainAs(title) {
+                        start.linkTo(image.end, margin = 16.dp)
+                        top.linkTo(parent.top)
+                    },
+                style = MaterialTheme.typography.h1
+            )
+
+            Box(
+                modifier = Modifier
+                    .height(44.dp)
+                    .border(
+                        border = BorderStroke(0.5.dp, MaterialTheme.colors.onPrimary),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .constrainAs(box) {
+                        start.linkTo(image.end, margin = 16.dp)
+                        bottom.linkTo(parent.bottom)
+                    }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "-",
+                        modifier = Modifier
+                            .clickable { if (counter != 0) counter-- }
+                            .padding(horizontal = 8.dp),
+                        style = TextStyle(
+                            color = MaterialTheme.colors.secondary,
+                            fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                            fontSize = 24.sp
+                        )
+                    )
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp),
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                    Text(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "$counter",
+                        style = TextStyle(
+                            color = MaterialTheme.colors.secondary,
+                            fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                            fontSize = 24.sp
+                        )
+                    )
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(1.dp),
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                    Text(
+                        text = "+",
+                        modifier = Modifier
+                            .clickable { counter++ }
+                            .padding(horizontal = 8.dp),
+                        style = TextStyle(
+                            color = MaterialTheme.colors.secondary,
+                            fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                            fontSize = 24.sp
+                        )
+                    )
+                }
+            }
+
+            Text(
+                text = "${product.price} ₽",
+                modifier = Modifier
+                    .constrainAs(price) {
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom, margin = 4.dp)
+                    },
+                style = TextStyle(
+                    color = MaterialTheme.colors.secondary,
+                    fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                    fontSize = 18.sp
+                )
+            )
+
+        }
+    }
+
 }
 
 /*@Composable

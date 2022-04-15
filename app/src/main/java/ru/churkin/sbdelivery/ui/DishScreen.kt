@@ -112,7 +112,7 @@ fun DishScreen() {
                 style = MaterialTheme.typography.caption,
             )
             Text(
-                text = "780 P",
+                text = "780 ₽",
                 textDecoration = TextDecoration.LineThrough,
                 modifier = Modifier
                     .constrainAs(oldPrice) {
@@ -126,7 +126,7 @@ fun DishScreen() {
                 )
             )
             Text(
-                text = "680 P",
+                text = "680 ₽",
                 modifier = Modifier
                     .constrainAs(newPrice) {
                         top.linkTo(text.bottom, margin = 24.dp)

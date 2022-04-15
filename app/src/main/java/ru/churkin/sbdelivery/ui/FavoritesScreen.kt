@@ -48,9 +48,7 @@ fun FavoritesScreen(
             ) { itemData ->
                 CardProduct(
                     onClick = { },
-                    productTitle = itemData.name,
-                    productPrice = "${itemData.price} Р",
-                    productImage = rememberAsyncImagePainter(itemData.image)
+                    product = itemData
 
                 )
             }
