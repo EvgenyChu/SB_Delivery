@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.churkin.sbdelivery.R
 import ru.churkin.sbdelivery.items.BasketRow
@@ -30,14 +31,6 @@ fun BasketScreen(
 
     var counter by remember { mutableStateOf(0) }
 
-    val colors = TextFieldDefaults.textFieldColors(
-        textColor = MaterialTheme.colors.onSurface,
-        disabledTextColor = MaterialTheme.colors.onBackground,
-        placeholderColor = MaterialTheme.colors.onBackground,
-        backgroundColor = MaterialTheme.colors.background,
-        focusedIndicatorColor = MaterialTheme.colors.secondary,
-        cursorColor = MaterialTheme.colors.onSurface
-    )
 
     Scaffold(
         topBar = {
@@ -47,63 +40,50 @@ fun BasketScreen(
             )
         }
     ) {
-        ConstraintLayout() {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (lazyColumn, stock, price, button) = createRefs()
 
             LazyColumn(
-                contentPadding = PaddingValues(bottom = 232.dp),
                 modifier = Modifier
                     .constrainAs(lazyColumn) {
-                        top.linkTo(parent.top, margin = 16.dp)
+                        top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
+                        bottom.linkTo(stock.top)
+                        height = Dimension.fillToConstraints
                     }
             ) {
                 items(state.products, { it.id }) { item ->
                     BasketRow(product = item)
                     counter++
-                    if (counter < state.products.size - 1) Divider(color = MaterialTheme.colors.onBackground)
+                    if (state.products.indexOf(item) < state.products.size - 1) Divider(
+                        Modifier.height(1.dp),
+                        color = Color(0xFF2C2C33)
+                    )
                 }
             }
-            Row(
+
+            PromoCode(
+                onValueChange = {},
+                code = state.promoCode,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .constrainAs(stock) {
                         top.linkTo(lazyColumn.bottom, margin = 16.dp)
-                        start.linkTo(parent.start, margin = 16.dp)
-                        end.linkTo(parent.end, margin = 16.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
                     }
-            ) {
-                TextField(
-                    value = state.promoCode,
-                    onValueChange = { vm.updatePromoCode(it) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    textStyle = MaterialTheme.typography.body1,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    colors = colors
-                )
-                Spacer(modifier = Modifier.width(16.dp))
+                    .height(56.dp)
+                    .padding(horizontal = 16.dp)
+            )
 
-                ButtonItem(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF33313B)),
-                    text = "Применить",
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colors.onBackground,
-                        fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                        fontSize = 14.sp
-                    )
-                )
-            }
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .constrainAs(price) {
+                        top.linkTo(stock.bottom, margin = 16.dp)
                         start.linkTo(parent.start, margin = 16.dp)
                         end.linkTo(parent.end, margin = 16.dp)
                         bottom.linkTo(button.top, margin = 16.dp)
+                        width = Dimension.fillToConstraints
                     }
             ) {
                 Text(
@@ -125,17 +105,79 @@ fun BasketScreen(
                 )
             }
             ButtonItem(
-                onClick = { /*TODO*/ },
+                onClick = { },
                 modifier = Modifier
+                    .fillMaxWidth()
                     .constrainAs(button) {
-                    start.linkTo(parent.start, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
-                    bottom.linkTo(parent.bottom, margin = 16.dp)
-                },
+                        start.linkTo(parent.start, margin = 16.dp)
+                        end.linkTo(parent.end, margin = 16.dp)
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
+                        width = Dimension.fillToConstraints
+                    },
                 text = "Оформить заказ",
                 spacerHeight = 0
             )
         }
 
+    }
+}
+
+@Composable
+fun PromoCode(
+    code: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = TextFieldDefaults.textFieldColors(
+        textColor = MaterialTheme.colors.onPrimary,
+        disabledTextColor = Color(0xFF33313B),
+        placeholderColor = Color(0xFF33313B),
+        backgroundColor = MaterialTheme.colors.background,
+        focusedIndicatorColor = Color(0xFF33313B),
+        cursorColor = MaterialTheme.colors.onPrimary
+    )
+
+    Row(
+        modifier = modifier
+    ) {
+        TextField(
+            value = code,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .height(56.dp)
+                .weight(5f),
+            textStyle = TextStyle(
+                color = MaterialTheme.colors.onPrimary,
+                fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                fontSize = 14.sp
+            ),
+            placeholder = {
+                Text(
+                    "Введите промокод",
+                    style = TextStyle(
+                        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                        fontSize = 14.sp
+                    )
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = colors
+        )
+
+        ButtonItem(
+            onClick = {},
+            modifier = Modifier
+                .weight(3f)
+                .height(44.dp)
+                .padding(start = 16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF33313B)),
+            text = "Применить",
+            textStyle = TextStyle(
+                color = MaterialTheme.colors.onBackground,
+                fontFamily = FontFamily(Font(R.font.roboto_medium)),
+                fontSize = 14.sp
+            ),
+            spacerHeight = 0
+        )
     }
 }

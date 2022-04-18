@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
@@ -23,10 +24,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import coil.Coil
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -147,7 +150,9 @@ fun ButtonItem(
     ) {
         Text(
             text = text,
-            style = textStyle
+            style = textStyle,
+            softWrap = false,
+            overflow = TextOverflow.Visible
         )
     }
     Spacer(modifier = Modifier.height(spacerHeight.dp))
@@ -231,7 +236,7 @@ fun CardProduct(
     var isFavorite: Boolean by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
-            .defaultMinSize(minHeight = 220.dp, minWidth = 160.dp ),
+            .defaultMinSize(minHeight = 220.dp, minWidth = 160.dp),
         shape = RoundedCornerShape(8.dp),
         backgroundColor = MaterialTheme.colors.primary
     ) {
@@ -298,7 +303,7 @@ fun CardProduct(
                 )
             }
             Text(
-                text = "${ product.price } ₽",
+                text = "${product.price} ₽",
                 modifier = Modifier
                     .constrainAs(price) {
                         start.linkTo(parent.start, margin = 8.dp)
@@ -322,7 +327,7 @@ fun CardProduct(
 @Composable
 fun BasketRow(
     product: Product
-){
+) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(product.image)
@@ -336,43 +341,51 @@ fun BasketRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .background(color = MaterialTheme.colors.background)
-            .defaultMinSize(minHeight = 80.dp)
-    ){
-        ConstraintLayout() {
-            val (image, title, price, box) = createRefs()
-
-            Image(
-                painter = painter,
-                contentScale = ContentScale.Crop,
-                contentDescription = "background",
+            .height(80.dp)
+    ) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (imageBox, title, price, box) = createRefs()
+            Box(
                 modifier = Modifier
-                    .constrainAs(image) {
+                    .constrainAs(imageBox) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         bottom.linkTo(parent.bottom)
                     }
-                    .aspectRatio(1f)
-            )
+                    .clip(shape = RoundedCornerShape(8.dp))
+            ) {
+                Image(
+                    painter = painter,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "background",
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                )
+            }
+
 
             Text(
                 text = product.name,
                 modifier = Modifier
                     .constrainAs(title) {
-                        start.linkTo(image.end, margin = 16.dp)
+                        start.linkTo(imageBox.end, margin = 16.dp)
                         top.linkTo(parent.top)
+                        end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
                     },
-                style = MaterialTheme.typography.h1
+                style = MaterialTheme.typography.h1,
+                overflow = TextOverflow.Ellipsis
             )
 
             Box(
                 modifier = Modifier
-                    .height(44.dp)
+                    .height(34.dp)
                     .border(
                         border = BorderStroke(0.5.dp, MaterialTheme.colors.onPrimary),
                         shape = RoundedCornerShape(8.dp)
                     )
                     .constrainAs(box) {
-                        start.linkTo(image.end, margin = 16.dp)
+                        start.linkTo(imageBox.end, margin = 16.dp)
                         bottom.linkTo(parent.bottom)
                     }
             ) {
@@ -385,28 +398,28 @@ fun BasketRow(
                         style = TextStyle(
                             color = MaterialTheme.colors.secondary,
                             fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                            fontSize = 24.sp
+                            fontSize = 18.sp
                         )
                     )
                     Divider(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .width(1.dp),
+                            .width(0.5.dp),
                         color = MaterialTheme.colors.onPrimary
                     )
                     Text(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = 24.dp),
                         text = "$counter",
                         style = TextStyle(
                             color = MaterialTheme.colors.secondary,
                             fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                            fontSize = 24.sp
+                            fontSize = 18.sp
                         )
                     )
                     Divider(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .width(1.dp),
+                            .width(0.5.dp),
                         color = MaterialTheme.colors.onPrimary
                     )
                     Text(
@@ -417,7 +430,7 @@ fun BasketRow(
                         style = TextStyle(
                             color = MaterialTheme.colors.secondary,
                             fontFamily = FontFamily(Font(R.font.roboto_medium)),
-                            fontSize = 24.sp
+                            fontSize = 18.sp
                         )
                     )
                 }
